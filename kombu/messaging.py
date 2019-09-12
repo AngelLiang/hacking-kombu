@@ -634,6 +634,7 @@ class Consumer(object):
                 raise
             self.on_decode_error(message, exc)
         else:
+            # 如果有 self.on_message 则调用，没有则调用 self.receive
             return on_m(message) if on_m else self.receive(decoded, message)
 
     def __repr__(self):

@@ -17,9 +17,10 @@ class Worker(ConsumerMixin):
     def get_consumers(self, Consumer, channel):
         return [Consumer(queues=task_queues,
                          accept=['pickle', 'json'],
-                         callbacks=[self.process_task])]
+                         callbacks=[self.process_task])]  # 在这里放入 process_task 方法
 
     def process_task(self, body, message):
+        """处理任务"""
         fun = body['fun']
         args = body['args']
         kwargs = body['kwargs']

@@ -50,6 +50,10 @@ class ConsumerMixin(object):
     Supporting multiple consumers is important so that multiple
     channels can be used for different QoS requirements.
 
+    这个基本类需要一个 :class:`~kombu.Connection` 实例的 :attr:`connection` 属性。
+    定义一个 :meth:`get_consumers` 方法，返回要使用的 :class:`kombu.Consumer` 队列。
+    支持多消费者非常重要，这样可以对不同QoS需求使用多个通道。
+
     Example:
         .. code-block:: python
 

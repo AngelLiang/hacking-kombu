@@ -15,6 +15,7 @@ def send_as_task(connection, fun, args=(), kwargs={}, priority='mid'):
     payload = {'fun': fun, 'args': args, 'kwargs': kwargs}
     routing_key = priority_to_routing_key[priority]
 
+    # 发送消息
     with producers[connection].acquire(block=True) as producer:
         producer.publish(payload,
                          serializer='pickle',
