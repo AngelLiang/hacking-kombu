@@ -12,7 +12,7 @@ class Channel(virtual.Channel):
     """In-memory Channel."""
 
     events = defaultdict(set)
-    queues = {}
+    queues = {}  # [{queue: Queue}, ...]
     do_restore = False
     supports_fanout = True
 
