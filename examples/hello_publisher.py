@@ -10,4 +10,4 @@ with Connection('amqp://guest:guest@localhost:5672//') as conn:
     message = 'helloworld, sent at {0}'.format(datetime.datetime.today())
     simple_queue.put(message)  # 发送消息
     print('Sent: {0}'.format(message))
-    simple_queue.close()  # 关闭消息
+    simple_queue.close()  # 关闭队列

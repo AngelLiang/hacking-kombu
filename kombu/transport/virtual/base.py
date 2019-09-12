@@ -605,7 +605,7 @@ class Channel(AbstractChannel, base.StdChannel):
                 message, exchange, routing_key, **kwargs
             )
         # anon exchange: routing_key is the destination queue
-        return self._put(routing_key, message, **kwargs)
+        return self._put(routing_key, message, **kwargs)  # call self._put()
 
     def _inplace_augment_message(self, message, exchange, routing_key):
         message['body'], body_encoding = self.encode_body(
@@ -652,6 +652,7 @@ class Channel(AbstractChannel, base.StdChannel):
     def basic_get(self, queue, no_ack=False, **kwargs):
         """Get message by direct access (synchronous)."""
         try:
+            # call self._get(), _get() 方法可以重写
             message = self.Message(self._get(queue), channel=self)
             if not no_ack:
                 self.qos.append(message, message.delivery_tag)
