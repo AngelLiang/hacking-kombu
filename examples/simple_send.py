@@ -10,6 +10,7 @@ from __future__ import absolute_import, unicode_literals
 
 from kombu import Connection
 
+# 建立连接
 #: Create connection
 #: If hostname, userid, password and virtual_host is not specified
 #: the values below are the default, but listed here so it can

@@ -26,10 +26,16 @@ class Object(object):
     """
 
     attrs = ()
+    """
+    Sample:
+        ('name', None),
+        ('type', None),
+    """
 
     def __init__(self, *args, **kwargs):
+        """自动把 kwargs 转换为 attrs 处理"""
         for name, type_ in self.attrs:
-            value = kwargs.get(name)
+            value = kwargs.get(name)  # 从 kwargs 获取参数
             if value is not None:
                 setattr(self, name, (type_ or _any)(value))
             else:
@@ -39,6 +45,9 @@ class Object(object):
                     setattr(self, name, None)
 
     def as_dict(self, recurse=False):
+        """
+        :param recurse: 递归
+        """
         def f(obj, type):
             if recurse and isinstance(obj, Object):
                 return obj.as_dict(recurse=True)

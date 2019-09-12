@@ -184,6 +184,19 @@ class Producer(object):
     def _publish(self, body, priority, content_type, content_encoding,
                  headers, properties, routing_key, mandatory,
                  immediate, exchange, declare):
+        """
+        :param body:
+        :param priority:
+        :param content_type:
+        :param content_encoding:
+        :param headers:
+        :pararm properties:
+        :param routing_key:
+        :param mandatory:
+        :param immediate:
+        :param exchange:
+        :param declare:
+        """
         channel = self.channel
         message = channel.prepare_message(
             body, priority, content_type,
@@ -497,7 +510,7 @@ class Consumer(object):
         except KeyError:
             pass
         else:
-            self.channel.basic_cancel(tag)
+            self.channel.basic_cancel(tag)  # cancel
         finally:
             self._queues.pop(qname, None)
 

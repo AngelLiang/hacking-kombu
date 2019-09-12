@@ -10,11 +10,15 @@ from .serialization import prepare_accept_content
 
 TRANSIENT_DELIVERY_MODE = 1
 PERSISTENT_DELIVERY_MODE = 2
+# 传输模式
+# - transient：内存
+# - persistent：持久化
 DELIVERY_MODES = {'transient': TRANSIENT_DELIVERY_MODE,
                   'persistent': PERSISTENT_DELIVERY_MODE}
 
 __all__ = ('Exchange', 'Queue', 'binding', 'maybe_delivery_mode')
 
+# 内部 exchange 前缀
 INTERNAL_EXCHANGE_PREFIX = ('amq.',)
 
 
@@ -34,7 +38,9 @@ def maybe_delivery_mode(
     """Get delivery mode by name (or none if undefined)."""
     modes = DELIVERY_MODES if not modes else modes
     if v:
+        # 如果 v 是数字，则直接返回；否则根据 modes 字典返回数值
         return v if isinstance(v, numbers.Integral) else modes[v]
+    # 返回默认值
     return default
 
 
@@ -164,6 +170,7 @@ class Exchange(MaybeChannelBound):
         return hash('E|%s' % (self.name,))
 
     def _can_declare(self):
+        """是否可声明"""
         return not self.no_declare and (
             self.name and not self.name.startswith(
                 INTERNAL_EXCHANGE_PREFIX))
@@ -180,6 +187,7 @@ class Exchange(MaybeChannelBound):
         """
         if self._can_declare():
             passive = self.passive if passive is None else passive
+            # channel declare exchange
             return (channel or self.channel).exchange_declare(
                 exchange=self.name, type=self.type, durable=self.durable,
                 auto_delete=self.auto_delete, arguments=self.arguments,
@@ -197,6 +205,7 @@ class Exchange(MaybeChannelBound):
         """
         if isinstance(exchange, Exchange):
             exchange = exchange.name
+        # channel bind exchange
         return (channel or self.channel).exchange_bind(
             destination=self.name,
             source=exchange,
@@ -210,6 +219,7 @@ class Exchange(MaybeChannelBound):
         """Delete previously created exchange binding from the server."""
         if isinstance(source, Exchange):
             source = source.name
+        # channel unbind channel
         return (channel or self.channel).exchange_unbind(
             destination=self.name,
             source=source,
@@ -567,6 +577,9 @@ class Queue(MaybeChannelBound):
     def __init__(self, name='', exchange=None, routing_key='',
                  channel=None, bindings=None, on_declared=None,
                  **kwargs):
+        """
+        关联 exchange 和 channel
+        """
         super(Queue, self).__init__(**kwargs)
         self.name = name or self.name
         if isinstance(exchange, str):
@@ -669,6 +682,7 @@ class Queue(MaybeChannelBound):
         if isinstance(exchange, Exchange):
             exchange = exchange.name
 
+        # channel bind queue
         return (channel or self.channel).queue_bind(
             queue=self.name,
             exchange=exchange,
@@ -695,6 +709,7 @@ class Queue(MaybeChannelBound):
             accept (Set[str]): Custom list of accepted content types.
         """
         no_ack = self.no_ack if no_ack is None else no_ack
+        # channel get message
         message = self.channel.basic_get(queue=self.name, no_ack=no_ack)
         if message is not None:
             m2p = getattr(self.channel, 'message_to_python', None)
@@ -732,6 +747,7 @@ class Queue(MaybeChannelBound):
         """
         if no_ack is None:
             no_ack = self.no_ack
+        # channel consume
         return self.channel.basic_consume(
             queue=self.name,
             no_ack=no_ack,
@@ -757,6 +773,7 @@ class Queue(MaybeChannelBound):
 
             nowait (bool): Do not wait for a reply.
         """
+        # channel delete queue
         return self.channel.queue_delete(queue=self.name,
                                          if_unused=if_unused,
                                          if_empty=if_empty,
@@ -769,6 +786,7 @@ class Queue(MaybeChannelBound):
     def unbind_from(self, exchange='', routing_key='',
                     arguments=None, nowait=False, channel=None):
         """Unbind queue by deleting the binding from the server."""
+        # channel unbind queue
         return (channel or self.channel).queue_unbind(
             queue=self.name,
             exchange=exchange.name,
@@ -816,6 +834,8 @@ class Queue(MaybeChannelBound):
 
     @classmethod
     def from_dict(cls, queue, **options):
+        """类方法，使用字典创建对象
+        """
         binding_key = options.get('binding_key') or options.get('routing_key')
 
         e_durable = options.get('exchange_durable')
@@ -834,10 +854,10 @@ class Queue(MaybeChannelBound):
         if q_auto_delete is None:
             q_auto_delete = options.get('auto_delete')
 
-        e_arguments = options.get('exchange_arguments')
-        q_arguments = options.get('queue_arguments')
-        b_arguments = options.get('binding_arguments')
-        c_arguments = options.get('consumer_arguments')
+        e_arguments = options.get('exchange_arguments')  # exchange_arguments
+        q_arguments = options.get('queue_arguments')  # queue_arguments
+        b_arguments = options.get('binding_arguments')  # binding_arguments
+        c_arguments = options.get('consumer_arguments')  # consumer_arguments
         bindings = options.get('bindings')
 
         exchange = Exchange(options.get('exchange'),

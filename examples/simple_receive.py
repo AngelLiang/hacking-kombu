@@ -6,12 +6,14 @@ from __future__ import absolute_import, unicode_literals
 
 from kombu import Connection
 
+# 建立连接
 #: Create connection
 #: If hostname, userid, password and virtual_host is not specified
 #: the values below are the default, but listed here so it can
 #: be easily changed.
 with Connection('amqp://guest:guest@localhost:5672//') as conn:
 
+    # 从 MQ 的指定队列里面将消息拿出来进行处理
     #: SimpleQueue mimics the interface of the Python Queue module.
     #: First argument can either be a queue name or a kombu.Queue object.
     #: If a name, then the queue will be declared with the name as the queue
